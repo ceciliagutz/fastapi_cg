@@ -1,12 +1,19 @@
 #Project Cecilia Gutierrez
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
+from sqlalchemy.orm import Session
+from app.infraestructure.database import get_db
 from app.domain.employee import Employee
-from app.application.employee_service import get_all_employees, get_employees_by_active, add_employee
+from app.application.employee_service import (
+    get_all_employees,
+    get_employees_by_active,
+    add_employee,
+)
 from pydantic import BaseModel
 from typing import Optional
 
 router = APIRouter()
+
 
 class EmployeeCreate(BaseModel):
     first_name: str
@@ -16,16 +23,24 @@ class EmployeeCreate(BaseModel):
     phone: Optional[str] = None
     is_active: bool = True
 
-# Endpoints
+
 @router.get("/", response_model=list[Employee])
-async def get_users():
-    return get_all_employees()
+async def get_users(db: Session = Depends(get_db)):
+    return get_all_employees(db)
+
 
 @router.get("/active", response_model=list[Employee])
-async def get_active_users(is_active: bool = Query(True, description="Filter by active status")):
-    return get_employees_by_active(is_active)
+async def get_active_users(
+    is_active: bool = Query(True),
+    db: Session = Depends(get_db),
+):
+    return get_employees_by_active(db, is_active)
+
 
 @router.post("/", response_model=Employee)
-async def create_employee(emp: EmployeeCreate):
-    new_emp = Employee(**emp.dict(), id=0)  
-    return add_employee(new_emp)
+async def create_employee(
+    emp: EmployeeCreate,
+    db: Session = Depends(get_db),
+):
+    new_emp = Employee(**emp.model_dump(), id=0)
+    return add_employee(db, new_emp)

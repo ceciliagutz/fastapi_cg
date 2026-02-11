@@ -1,28 +1,69 @@
 #Project CG
 
-from app.domain.employee import Employee
 from typing import List
+from sqlalchemy.orm import Session
+from app.models import EmployeeModel
+from app.domain.employee import Employee
 
-# Simulator db
-_employee_db: List[Employee] = [
-    Employee(id=1, first_name="Cecilia", last_name="Gutierrez", position="Developer Jr", email="cecilia.gutierrez@example.com", is_active=False),
-    Employee(id=2, first_name="Leticia", last_name="Morales", position="Developer senior", email="leticia.morales@example.com", is_active=True),
-    Employee(id=3, first_name="Victor", last_name="Reyes", position="Developer senior", email="victor.reyes@example.com", is_active=True),
-]
 
 class EmployeeRepository:
 
     @staticmethod
-    def get_all() -> List[Employee]:
-        return _employee_db
+    def get_all(db: Session) -> List[Employee]:
+        employees = db.query(EmployeeModel).all()
+        return [
+            Employee(
+                id=e.id,
+                first_name=e.first_name,
+                last_name=e.last_name,
+                position=e.position,
+                email=e.email,
+                phone=e.phone,
+                is_active=e.is_active,
+            )
+            for e in employees
+        ]
 
     @staticmethod
-    def get_by_active(is_active: bool) -> List[Employee]:
-        return [emp for emp in _employee_db if emp.is_active == is_active]
+    def get_by_active(db: Session, is_active: bool) -> List[Employee]:
+        employees = (
+            db.query(EmployeeModel)
+            .filter(EmployeeModel.is_active == is_active)
+            .all()
+        )
+        return [
+            Employee(
+                id=e.id,
+                first_name=e.first_name,
+                last_name=e.last_name,
+                position=e.position,
+                email=e.email,
+                phone=e.phone,
+                is_active=e.is_active,
+            )
+            for e in employees
+        ]
 
     @staticmethod
-    def add(emp: Employee) -> Employee:
-        new_id = max([e.id for e in _employee_db]) + 1 if _employee_db else 1
-        emp.id = new_id
-        _employee_db.append(emp)
-        return emp
+    def add(db: Session, emp: Employee) -> Employee:
+        db_emp = EmployeeModel(
+            first_name=emp.first_name,
+            last_name=emp.last_name,
+            position=emp.position,
+            email=emp.email,
+            phone=emp.phone,
+            is_active=emp.is_active,
+        )
+        db.add(db_emp)
+        db.commit()
+        db.refresh(db_emp)
+
+        return Employee(
+            id=db_emp.id,
+            first_name=db_emp.first_name,
+            last_name=db_emp.last_name,
+            position=db_emp.position,
+            email=db_emp.email,
+            phone=db_emp.phone,
+            is_active=db_emp.is_active,
+        )
