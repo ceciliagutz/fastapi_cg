@@ -1,15 +1,16 @@
-from dataclasses import dataclass
+
 from datetime import date
 from typing import Optional
+from pydantic import BaseModel
 
-@dataclass
-class Employee:
+
+class Employee(BaseModel):
     id: int
     first_name: str
     last_name: str
     position: str
     email: str
-    phone: Optional[str] = None
-    start_date: date = date.today()
+    phone: Optional[int] = None
+    start_date: Optional[date] = date.today()
     end_date: Optional[date] = None
     is_active: bool = True
