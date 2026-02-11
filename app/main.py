@@ -2,13 +2,12 @@
 
 from fastapi import FastAPI
 from app.routes import user
+from app.domain.employee import Employee
 
-app = FastAPI(title= "FastAPI CG Project")
+app = FastAPI(title="FastAPI CG Project")
 
 app.include_router(user.router, prefix="/user", tags=["User"])
 
 @app.get("/")
 async def root():
-    return{"message": "API is running"}
-
-
+    return {"message": "API is running"}
