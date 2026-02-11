@@ -10,7 +10,7 @@ class Employee(BaseModel):
     last_name: str
     position: str
     email: str
-    phone: Optional[int] = None
+    phone: Optional[str] = None
     start_date: Optional[date] = date.today()
     end_date: Optional[date] = None
     is_active: bool = True

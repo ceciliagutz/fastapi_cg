@@ -27,5 +27,5 @@ async def get_active_users(is_active: bool = Query(True, description="Filter by 
 
 @router.post("/", response_model=Employee)
 async def create_employee(emp: EmployeeCreate):
-    new_emp = Employee(**emp.dict(), id=0)  # id será asignado en el service
+    new_emp = Employee(**emp.dict(), id=0)  
     return add_employee(new_emp)
