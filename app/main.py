@@ -1,13 +1,20 @@
 #Project Cecilia Gutierrez
 
 from fastapi import FastAPI
-from app.routes import user
-from app.domain.employee import Employee
+from app.routes.user import router as user_router
+from app.models import Base
+from app.infraestructure.database import engine
 
-app = FastAPI(title="FastAPI CG Project")
+app = FastAPI()
 
-app.include_router(user.router, prefix="/user", tags=["User"])
+app.include_router(user_router, prefix="/user", tags=["Users"])
 
 @app.get("/")
-async def root():
+def root():
     return {"message": "API is running"}
+
+
+@app.on_event("startup")
+async def startup():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
