@@ -1,7 +1,7 @@
 #Project CG
 from app.domain.employee import Employee
 from typing import List, Optional
-
+from app.infraestructure.employee_repository import EmployeeRepository
 # List employees
 employees: List[Employee] = [
     Employee(id=1, first_name="Cecilia", last_name="Gutierrez", position="Developer Jr", email="cecilia.gutierrez@example.com", is_active=False),
@@ -11,13 +11,10 @@ employees: List[Employee] = [
 
 
 def get_all_employees() -> List[Employee]:
-    return employees
+    return EmployeeRepository.get_all()
 
 def get_employees_by_active(is_active: bool) -> List[Employee]:
-    return [emp for emp in employees if emp.is_active == is_active]
+    return EmployeeRepository.get_by_active(is_active)
 
 def add_employee(emp: Employee) -> Employee:
-    new_id = max([e.id for e in employees]) + 1 if employees else 1
-    emp.id = new_id
-    employees.append(emp)
-    return emp
+    return EmployeeRepository.add(emp)
